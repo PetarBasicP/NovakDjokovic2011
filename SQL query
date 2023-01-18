@@ -1,0 +1,54 @@
+--This will be an analysis of Novak Djokovic's 2011 season
+select * from matches where (winner_name = 'Novak Djokovic' or loser_name = 'Novak Djokovic') and tourney_date like '2011-%'
+
+--Number of matches played
+select count(*) from matches where (winner_name = 'Novak Djokovic' or loser_name = 'Novak Djokovic') and tourney_date like '2011-%'
+
+--Win percentage
+select
+(select convert(float,count(*)) from matches where winner_name = 'Novak Djokovic' and tourney_date like '2011-%')
+/
+(select count(*) from matches where (winner_name = 'Novak Djokovic' or loser_name = 'Novak Djokovic') and tourney_date like '2011-%')
+*100
+
+--Number of matches lost not counting Novak's walkovers
+select count(*) from matches where (loser_name = 'Novak Djokovic') and tourney_date like '2011-%' and minutes is not NULL
+
+--Grand Slam win percentage
+select
+(select convert(float,count(*)) from matches where winner_name = 'Novak Djokovic' and best_of = 5 and tourney_level = 'G' and tourney_date like '2011-%')
+/
+(select count(*) from matches where (winner_name = 'Novak Djokovic' or loser_name = 'Novak Djokovic') and tourney_level = 'G' and best_of = 5 and tourney_date like '2011-%')
+*100
+
+--Best of 3 sets win percentage
+select
+(select convert(float,count(*)) from matches where winner_name = 'Novak Djokovic' and best_of = 3 and tourney_date like '2011-%')
+/
+(select count(*) from matches where (winner_name = 'Novak Djokovic' or loser_name = 'Novak Djokovic') and best_of = 3 and tourney_date like '2011-%')
+*100
+
+--Number of titles
+select count(*) from matches where winner_name = 'Novak Djokovic' and round = 'F' and tourney_date like '2011-%'
+
+--Stats
+--Average number of aces per won match
+select convert(float,sum(w_ace))/convert(float,count(w_ace)) from matches where winner_name = 'Novak Djokovic' and tourney_date like '2011-%' and w_ace is not NULL
+
+--Average 1st serve win % on won matches
+select avg(convert(float,w_1stwon))/avg(convert(float,w_1stIn))*100 from matches where winner_name = 'Novak Djokovic' and tourney_date like '2011-%'
+
+--Average 1st serve win % on lost matches (that could be the resulting factor of Novak's loss)
+select avg(convert(float,l_1stwon))/avg(convert(float,l_1stIn))*100 from matches where loser_name = 'Novak Djokovic' and tourney_date like '2011-%'
+
+--Average 1st serve win % of Novak's opponent when Novak wins
+select avg(convert(float,l_1stwon))/avg(convert(float,l_1stIn))*100 from matches where winner_name = 'Novak Djokovic' and tourney_date like '2011-%'
+
+--Average 1st serve win % of Novak's opponent when Novak loses (opponents converting much more 1st serve points, could be crucial)
+select avg(convert(float,w_1stwon))/avg(convert(float,w_1stIn))*100 from matches where loser_name = 'Novak Djokovic' and tourney_date like '2011-%'
+
+--Longest Grand Slam match (not sure how to add parameters such as name of the opponent, tournament...)
+select max(minutes) from matches where (winner_name = 'Novak Djokovic' or loser_name = 'Novak Djokovic') and tourney_date like '2011-%'
+
+--Shortest match (not including walkovers or retirements)
+select min(minutes) from matches where (winner_name = 'Novak Djokovic' or loser_name = 'Novak Djokovic') and score not like '%RET' and score not like 'W/O' and tourney_date like '2011-%'
